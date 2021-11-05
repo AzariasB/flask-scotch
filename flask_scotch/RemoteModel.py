@@ -2,7 +2,7 @@ from typing import Optional, Any
 from flask import current_app
 from urllib import parse
 from os import path
-from aiohttp import ClientSession
+import requests
 
 from pydantic import BaseModel
 from functools import lru_cache
@@ -32,39 +32,38 @@ class ApiAccessor:
         )
         return constructed_url.geturl()
 
-    async def _request(self, verb: str, subdirectory="", url_params: Optional[dict[Any, Any]] = None, **kwargs):
+    def _request(self, verb: str, subdirectory="", url_params: Optional[dict[Any, Any]] = None, **kwargs):
         url = self._build_url(subdirectory, url_params)
-        async with ClientSession() as session:
-            if verb == "get":
-                response = await session.get(url, **kwargs)
-                return response.json()
-            if verb == "post":
-                response = await session.post(url, **kwargs)
-                return response.json()
-            if verb == "put":
-                response = await session.put(url, **kwargs)
-                return response.json()
-            if verb == "delete":
-                response = await session.delete(url, **kwargs)
-                return response.json()
-            raise TypeError(f"Unknown verb {verb}")
+        if verb == "get":
+            response = requests.get(url, **kwargs)
+            return response.json()
+        if verb == "post":
+            response = requests.post(url, **kwargs)
+            return response.json()
+        if verb == "put":
+            response = requests.put(url, **kwargs)
+            return response.json()
+        if verb == "delete":
+            response = requests.delete(url, **kwargs)
+            return response.json()
+        raise TypeError(f"Unknown verb {verb}")
 
-    async def all(self, **kwargs):
-        entities = await self._request("get", **kwargs)
+    def all(self, **kwargs):
+        entities = self._request("get", **kwargs)
         return list(self.model.parse_obj(item) for item in entities)
 
-    async def get(self, model_id: int):
-        entity = await self._request("get", str(model_id))
+    def get(self, model_id: int):
+        entity = self._request("get", str(model_id))
         return self.model.parse_obj(entity)
 
-    async def update(self, entity: "RemoteModel"):
-        return await self._request("put", data=entity.dict())
+    def update(self, entity: "RemoteModel"):
+        return self._request("put", data=entity.dict())
 
-    async def delete(self, model_id: int):
-        return await self._request("delete", str(model_id))
+    def delete(self, model_id: int):
+        return self._request("delete", str(model_id))
 
-    async def create(self, entity: "RemoteModel"):
-        res = await self._request("post", data=entity.dict())
+    def create(self, entity: "RemoteModel"):
+        res = self._request("post", data=entity.dict())
         if res.msg == "Success":
             return entity
         raise ValueError("Failed to create entity")
@@ -72,10 +71,12 @@ class ApiAccessor:
 
 class RemoteModel(BaseModel):
     __remote_directory__: str
+    api: ApiAccessor
+
     id: int
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         assert (
             hasattr(self, "__remote_directory__") and self.__remote_directory__ is not None
         ), "A remote model must have a directory path set"
@@ -87,8 +88,8 @@ class RemoteModel(BaseModel):
         accessor = ApiAccessor(cls)
         return accessor
 
-    async def update(self):
-        return await self.api.update(self)
+    def update(self):
+        return self.api.update(self)
 
-    async def delete(self):
-        return await self.api.delete(self.id)
+    def delete(self):
+        return self.api.delete(self.id)

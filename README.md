@@ -10,7 +10,7 @@ Tape a REST API with a local database
 
 ## Install
 
-TODO
+`pip install flask-scotch`
 
 ## Getting started
 
@@ -48,13 +48,25 @@ class Item(RemoteModel):
 
 
 # You can then use this model to fetch data from the remote api:
-all_items = await Item.api.all()
+all_items = Item.api.all()
 
 nw_item = Item(name='pen', description='a green pen to write things')
 
-final_item = await Item.api.create(nw_item)
+final_item = Item.api.create(nw_item)
 
 final_item.name = 'green pen'
-await final_item.update()
-await final_item.delete()
+final_item.update()
+final_item.delete()
 ```
+
+## TODO
+
+- [] ForeignModel: to be able to access an object from the API when it's accessed from a local model
+    - [] Handle 1:1 relations
+    - [] Handle 1:N relations
+- [] LocalModel:
+- [] ForeignModel and LocalModel: ability to reference a class with a string, rather than with the class directly
+- [] LocalModel, propagates changes when added to list, so that sqlAlchemy updates the id when necessary (maybe using [InstrumentedList](https://github.com/sqlalchemy/sqlalchemy/blob/main/lib/sqlalchemy/orm/collections.py) can help)
+- [] Improve handling of return values from the API, and throw error based on the HTTP code returned
+- [] Improve typing of all public functions and classes
+- [] Have a 100% code coverage

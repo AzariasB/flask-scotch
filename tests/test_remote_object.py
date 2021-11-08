@@ -23,7 +23,7 @@ class Item(RemoteModel):
 def test_init(app):
     with pytest.raises(AssertionError):
         get_api = Item.api
-        assert get_api is not None
+        assert get_api is None
 
 
 def _put_callback(request: PreparedRequest):

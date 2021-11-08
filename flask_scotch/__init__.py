@@ -3,6 +3,8 @@ from typing import Optional
 from flask import Flask
 
 from .RemoteModel import RemoteModel
+from .LocalModel import LocalModel
+from .ForeignModel import ForeignModel
 
 __version__ = "0.0.1"
 

@@ -4,7 +4,7 @@ from urllib import parse
 from os import path
 import requests
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Extra, PrivateAttr
 from functools import lru_cache
 
 
@@ -70,8 +70,13 @@ class ApiAccessor:
 
 
 class RemoteModel(BaseModel):
+    class Config:
+        arbitrary_types_allowed = True
+        extra = Extra.allow
+
     __remote_directory__: str
     api: ApiAccessor
+    _proxies = PrivateAttr()
 
     id: Optional[int]
 
@@ -80,6 +85,29 @@ class RemoteModel(BaseModel):
         assert (
             hasattr(self, "__remote_directory__") and self.__remote_directory__ is not None
         ), "A remote model must have a directory path set"
+        self._proxies = dict()
+        self.instantiate_local_models()
+
+    def instantiate_local_models(self):
+        from flask_scotch import LocalModel
+
+        attributes = [key for key in dir(self) if not key.startswith("__")]
+        for key in attributes:
+            value = getattr(self, key)
+            if isinstance(value, LocalModel):
+                self._setup_proxy(key, value)
+
+    def _setup_proxy(self, key, model):
+        delattr(self, key)
+        self._proxies[key] = model.get_query(self)
+
+    def __getattr__(self, item):
+        if item in self._proxies:
+            instance = self._proxies[item]()
+            setattr(self, item, instance)
+            return instance
+
+        return super().__getattr__(item)
 
     @classmethod  # type: ignore
     @property

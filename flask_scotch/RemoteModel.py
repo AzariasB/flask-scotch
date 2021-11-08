@@ -57,14 +57,14 @@ class ApiAccessor:
         return self.model.parse_obj(entity)
 
     def update(self, entity: "RemoteModel"):
-        return self._request("put", data=entity.dict())
+        return self._request("put", str(entity.id), data=entity.json())
 
     def delete(self, model_id: int):
         return self._request("delete", str(model_id))
 
     def create(self, entity: "RemoteModel"):
-        res = self._request("post", data=entity.dict())
-        if res.msg == "Success":
+        res = self._request("post", data=entity.json())
+        if res.get("msg", None) == "Success":
             return entity
         raise ValueError("Failed to create entity")
 
@@ -73,7 +73,7 @@ class RemoteModel(BaseModel):
     __remote_directory__: str
     api: ApiAccessor
 
-    id: int
+    id: Optional[int]
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

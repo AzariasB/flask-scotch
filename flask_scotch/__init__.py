@@ -4,7 +4,7 @@ from flask import Flask
 
 from .RemoteModel import RemoteModel
 from .LocalModel import LocalModel
-from .ForeignModel import ForeignModel
+from .ForeignModel import ForeignModel, PartialModel
 
 __version__ = "0.0.1"
 

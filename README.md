@@ -61,10 +61,12 @@ final_item.delete()
 
 ## TODO
 
-- [ ] ForeignModel: to be able to access an object from the API when it's accessed from a local model
-    - [ ] Handle 1:1 relations
+- [x] ForeignModel: to be able to access an object from the API when it's accessed from a local model
+    - [x] Handle 1:1 relations
     - [ ] Handle 1:N relations
-- [ ] LocalModel:
+- [x] LocalModel:
+  - [x] Handle 1:1 relations
+  - [x] Handle 1:N relations
 - [ ] ForeignModel and LocalModel: ability to reference a class with a string, rather than with the class directly
 - [ ] LocalModel, propagates changes when added to list, so that sqlAlchemy updates the id when necessary (maybe using [InstrumentedList](https://github.com/sqlalchemy/sqlalchemy/blob/main/lib/sqlalchemy/orm/collections.py) can help)
 - [ ] Improve handling of return values from the API, and throw error based on the HTTP code returned

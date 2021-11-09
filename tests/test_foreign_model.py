@@ -1,4 +1,4 @@
-from flask_scotch import ForeignModel, RemoteModel, PartialModel
+from flask_scotch import ForeignRelationship, RemoteModel, PartialModel
 import sqlalchemy as sa
 import json
 import responses
@@ -17,7 +17,7 @@ def test_remote_object_operations(app, scotch, db):
         id = sa.Column(sa.Integer, primary_key=True)
         car_id = sa.Column(sa.Integer)
 
-        car = ForeignModel(Car)
+        car = ForeignRelationship(Car)
 
     CARS: list[Car] = []
 

@@ -3,8 +3,8 @@ from typing import Optional
 from flask import Flask
 
 from .RemoteModel import RemoteModel
-from .LocalModel import LocalModel
-from .ForeignModel import ForeignModel, PartialModel
+from .LocalRelationship import LocalRelationship
+from .ForeignRelationship import ForeignRelationship, PartialModel
 
 __version__ = "0.0.1"
 

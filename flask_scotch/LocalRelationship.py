@@ -1,9 +1,10 @@
-from typing import Any
+from functools import lru_cache
+from typing import Any, Union
 
-_empty_instance = object()
+from flask_scotch.utils import local_model_from_name
 
 
-class LocalModel:
+class LocalRelationship:
     """
     Ease access to local objets, when using a remoteModel that has some objects that are in the local database
 
@@ -20,16 +21,20 @@ class LocalModel:
 
     """
 
-    def __init__(self, local_model: type[Any], database_field_name: str, use_list=True):
+    def __init__(self, local_model: Union[str, type[Any]], database_field_name: str, use_list=True):
         self.local_model = local_model
         self.database_field_name = database_field_name
         self.use_list = use_list
+
+    @lru_cache
+    def _local_class(self):
+        return local_model_from_name(self.local_model)
 
     def get_query(self, remote_instance: Any):
         def _callback():
             # Fetch the object
             query_args = {self.database_field_name: remote_instance.id}
-            query = self.local_model.query.filter_by(**query_args)
+            query = self._local_class().query.filter_by(**query_args)
             return query.all() if self.use_list else query.first()
 
         return _callback

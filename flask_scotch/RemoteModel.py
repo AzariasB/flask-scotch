@@ -89,12 +89,12 @@ class RemoteModel(BaseModel):
         self.instantiate_local_models()
 
     def instantiate_local_models(self):
-        from flask_scotch import LocalModel
+        from flask_scotch import LocalRelationship
 
         attributes = [key for key in dir(self) if not key.startswith("__")]
         for key in attributes:
             value = getattr(self, key)
-            if isinstance(value, LocalModel):
+            if isinstance(value, LocalRelationship):
                 self._setup_proxy(key, value)
 
     def _setup_proxy(self, key, model):

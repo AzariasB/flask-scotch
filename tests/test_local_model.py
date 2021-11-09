@@ -6,7 +6,7 @@ import json
 from requests import PreparedRequest
 import sqlalchemy as sa
 
-from flask_scotch import RemoteModel, LocalModel
+from flask_scotch import RemoteModel, LocalRelationship
 
 CARS: list[Any] = []
 
@@ -54,7 +54,7 @@ def test_attached(app, db, scotch):
         __remote_directory__ = "cars"
 
         name: str
-        tires = LocalModel(Tire, "car_id")
+        tires = LocalRelationship(Tire, "car_id")
 
     with app.test_request_context():
         db.create_all()

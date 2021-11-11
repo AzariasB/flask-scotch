@@ -1,5 +1,5 @@
 from functools import lru_cache
-from typing import Any, Union
+from typing import Any, Union, Optional
 
 from flask_scotch.utils import local_model_from_name
 
@@ -21,10 +21,14 @@ class LocalRelationship:
 
     """
 
-    def __init__(self, local_model: Union[str, type[Any]], database_field_name: str, use_list=True):
+    def __init__(self, local_model: Union[str, type[Any]], database_field_name: Optional[str] = None, use_list=True):
         self.local_model = local_model
         self.database_field_name = database_field_name
         self.use_list = use_list
+
+    def __set_name__(self, owner, name):
+        if self.database_field_name is None:
+            self.database_field_name = f"{owner.__name__}_id"
 
     @lru_cache
     def _local_class(self):
@@ -32,6 +36,9 @@ class LocalRelationship:
 
     def get_query(self, remote_instance: Any):
         def _callback():
+            if self.database_field_name is None:
+                raise ValueError("Database field name not set.")
+
             # Fetch the object
             query_args = {self.database_field_name: remote_instance.id}
             query = self._local_class().query.filter_by(**query_args)

@@ -14,7 +14,7 @@ Tape a REST API with a local database
 
 ## Getting started
 
-Firs, you need to register the extension in flask
+First, you need to register the extension in flask
 
 ```python
 from flask_scotch import FlaskScotch
@@ -50,7 +50,7 @@ class Item(LocalModel, db.Model):
     description: str
     storage_id: int
 
-    storage = RemoteRelationship("Container")
+    storage = RemoteRelationship("Storage")
 
 
 class Storage(RemoteModel):

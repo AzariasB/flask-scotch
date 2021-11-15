@@ -14,6 +14,15 @@ class LocalRelationship:
     When the remote object has several local objets, same query, without limit
     When the remote object is only linked to one
 
+    Exemple of use case
+
+    class Car(RemoteModel):
+        tires = LocalRelationship(Tire)
+
+    my_car = Car.api.get(1)
+
+    my_car_tires = my_car.tires
+
     Trois cas à gérer:
      - 1 to 1 : un objet remote est associé à un seul objet en BDD
      - 1:M : un objet remote est associé à M objets en BDD
@@ -22,6 +31,29 @@ class LocalRelationship:
     """
 
     def __init__(self, local_model: Union[str, type[Any]], database_field_name: Optional[str] = None, use_list=True):
+        """
+        Exemples :
+
+        class Book(RemoteModel):
+            author_id
+
+            # Fetches the author in the database from the table associated to the Author model, where the author_id is
+            # the same as  the book's
+            author = LocalRelationship("Author", use_list=False)
+
+        class A(RemoteModel):
+            id: int
+
+            # Fetches all the "B" instances where the field "custom_id" equals the id of A
+            b = LocalRelationship("B", "custom_id")
+
+        :param local_model: The Model to use to fetch the data from the database, can be directly the class,
+        or the name of the class as a string
+        :param database_field_name: The name of the field in the database to use to retrieve the the instance(s)
+         of the object
+        :param use_list: when fetching the entity from the database, to indicate wether a single instance is expected,
+        or if a list of instances is expected
+        """
         self.local_model = local_model
         self.database_field_name = database_field_name
         self.use_list = use_list

@@ -70,6 +70,25 @@ class ApiAccessor:
 
 
 class RemoteModel(BaseModel):
+    """
+    Class used to describe a model that can be accessed via the remote API.
+
+    It uses pydantic to tranform the json response into a python class instance.
+    To declare the fields available in the json, only the type definition of these
+    fields is needed.
+    Example:
+
+    class Computer(RemoteModel):
+        model: str
+        cpu: str
+        year: int
+
+
+    RemoteModel automatically adds an "id" attribute as a sort of primary key used to retrieve
+    the object in the remote API as well as (if needed) in the local databse)
+
+    """
+
     class Config:
         arbitrary_types_allowed = True
         extra = Extra.allow
@@ -113,11 +132,27 @@ class RemoteModel(BaseModel):
     @property
     @lru_cache
     def api(cls) -> ApiAccessor:
+        """
+        Access to the object used to query the remote API,
+        the ApiAccessor can be used to fetch, update, create and delete data in the remote API
+
+        :return: ApiAccessor
+        """
         accessor = ApiAccessor(cls)
         return accessor
 
     def update(self):
+        """
+        Creates and sends an HTTP request to update the data to the remote API
+
+        :return:
+        """
         return self.api.update(self)
 
     def delete(self):
+        """
+        Create and sends an HTTP request to delete the model from the remote API
+
+        :return:
+        """
         return self.api.delete(self.id)
